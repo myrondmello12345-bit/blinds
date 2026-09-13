@@ -4,6 +4,7 @@ const { WebSocketServer } = require('ws');
 
 const PORT = Number(process.env.PORT || 8080);
 const rooms = new Map(); // code -> { host, client }
+let waitingForMatch = null; // a single socket waiting for a "fully online" opponent, or null
 
 function code() {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -20,6 +21,7 @@ function send(ws, packet) {
 }
 
 function removeSocket(ws) {
+  if (waitingForMatch === ws) waitingForMatch = null;
   const roomCode = ws.roomCode;
   if (!roomCode) return;
   const room = rooms.get(roomCode);
@@ -68,6 +70,29 @@ wss.on('connection', (ws) => {
       ws.roomCode = roomCode;
       send(ws, { type: 'room_joined', code: roomCode });
       return send(room.host, { type: 'opponent_joined' });
+    }
+
+    if (p.type === 'quick_match') {
+      removeSocket(ws);
+      if (waitingForMatch && waitingForMatch.readyState === waitingForMatch.OPEN) {
+        // Someone's already waiting - pair the two of them into a room.
+        // Same room mechanics as a code-based room, just paired by the
+        // server instead of by a human typing a code.
+        const host = waitingForMatch;
+        const client = ws;
+        waitingForMatch = null;
+        const roomCode = code();
+        rooms.set(roomCode, { host, client });
+        host.roomCode = roomCode;
+        client.roomCode = roomCode;
+        send(host, { type: 'room_created', code: roomCode });
+        send(host, { type: 'opponent_joined' });
+        send(client, { type: 'room_joined', code: roomCode });
+        return;
+      }
+      // Nobody's waiting yet - park here until someone else quick-matches.
+      waitingForMatch = ws;
+      return send(ws, { type: 'waiting_for_match' });
     }
 
     if (p.type === 'game') {
