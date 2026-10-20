@@ -1,0 +1,95 @@
+// BLINDS web pages (v58): a home page, a privacy policy and terms.
+// Google's sign-in setup and the Play Store listing both ask for these links.
+//   /about    home page
+//   /privacy  privacy policy
+//   /terms    terms of service
+//   /delete-account  how to delete an account (Google Play asks for this link)
+// Set these environment variables on Render so the pages show your details:
+//   CONTACT_EMAIL    where players can reach you (required for the policy to be complete)
+//   DEVELOPER_NAME   your name or studio name (default "the BLINDS developer")
+const UPDATED = '20 October 2026';
+
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function shell(title, body) {
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8">` +
+    `<meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>` +
+    `<style>body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:#173B4D;color:#FFF7E8;margin:0;line-height:1.55}` +
+    `main{max-width:720px;margin:0 auto;padding:40px 22px 60px}h1{color:#FFD33D;font-size:2rem;margin:0 0 6px}` +
+    `h2{color:#FFD33D;font-size:1.15rem;margin:30px 0 6px}a{color:#5CD6FF}p,li{font-size:1rem}` +
+    `.small{color:#B9C9CF;font-size:.9rem}nav{margin:22px 0 0}nav a{margin-right:18px}</style></head>` +
+    `<body><main>${body}<nav><a href="/about">Home</a><a href="/privacy">Privacy policy</a><a href="/terms">Terms</a><a href="/delete-account">Delete account</a></nav></main></body></html>`;
+}
+
+function contactLine() {
+  const email = process.env.CONTACT_EMAIL || '';
+  return email
+    ? `<a href="mailto:${esc(email)}">${esc(email)}</a>`
+    : `the contact address shown on the game's store page`;
+}
+
+function about() {
+  const dev = esc(process.env.DEVELOPER_NAME || 'the BLINDS developer');
+  return shell('BLINDS', `<h1>BLINDS</h1><p class="small">A 5 x 5 race-to-five-lines game for two players.</p>` +
+    `<p>Fill your board, take turns calling numbers, and be the first to complete five lines. ` +
+    `Play on one device, against a friend with a room code, or against a random opponent online.</p>` +
+    `<p>BLINDS is made by ${dev}. Questions: ${contactLine()}.</p>`);
+}
+
+function privacy() {
+  const dev = esc(process.env.DEVELOPER_NAME || 'the BLINDS developer');
+  return shell('BLINDS - Privacy policy', `<h1>Privacy policy</h1><p class="small">BLINDS, by ${dev}. Last updated ${UPDATED}.</p>` +
+    `<h2>The short version</h2><p>BLINDS keeps your progress on your device, and, if you sign in with Google or Discord, backs it up on our server so you can get it back after reinstalling or on a new phone. The game can show optional video adverts from Google AdMob, which you choose to watch for a reward. We do not sell personal information. The game sends anonymous usage counts to help us improve it (you can switch this off), and the leaderboards show the name you choose.</p>` +
+    `<h2>Your progress and accounts</h2><p>Your coins, diamonds, trophies, level, items, streaks, daily results, friend code and friends list are saved on your device. If you are not signed in, they exist only there, and uninstalling the game or clearing its data removes them.</p>` +
+    `<p><b>Cloud backup (when signed in with Google or Discord):</b> while you are signed in, the game copies that progress to our server, linked to your account, so it can be restored if you reinstall the game or move to another phone. We keep the latest copy until you delete your account.</p>` +
+    `<h2>Online matches</h2><p>When you play online, your device connects to our match server. The server passes game messages between you and your opponent: your board, the numbers called, pause and rematch requests, preset chat messages, and the player name, character, trophy count and level shown on the match-up screen. These messages are passed on and not stored.</p>` +
+    `<p>Like any internet service, the server sees your IP address while you are connected. It is used only to keep the service running and to limit abuse (for example, too many connections from one address), is kept in memory for a few minutes, and is not written to a database. Our hosting provider (Render) may keep its own technical logs.</p>` +
+    `<h2>Leaderboards</h2><p><b>TOP 100 (trophies and wins):</b> if you sign in with Google or Discord, the game posts your chosen player name, character, level, trophies and wins to the leaderboard, linked to your account. Anyone playing BLINDS can see the name, character and scores. Deleting your account in the game also removes you from these boards.</p>` +
+    `<p><b>Daily BLINDS:</b> when you finish the daily match, the game posts your player name, character, score and streak to that day's board. If you are signed in, it is linked to your Google or Discord account ID; otherwise to a random ID made by the game on your device (not your phone's own IDs). Each day's board is deleted after 8 days.</p>` +
+    `<h2>Friends</h2><p>The game makes a random friend code on your device. While the game is open it tells our server your friend code, player name, character, trophies and level, whether you are in a match, and the friend codes on your list, so your friends can see you online and invite you. Your friends see your name, character, trophies, level and whether you are online. Who is online and invites are kept in the server's memory for about a minute. Your name, character, trophies and level are kept with your friend code so friends see them when you are offline; anyone who adds you is told to you once and then removed. Removing a friend happens on your device.</p>` +
+    `<h2>Usage statistics</h2><p>The game sends anonymous events to our server, such as "a match started", "the tutorial was finished" or "the shop was opened", together with the game version, the language and a random ID made by the game. The server only adds them up into daily totals (for example, how many players came back the next day). It does not keep the random ID or any record of what one player did. You can turn this off in <b>Settings > Share usage stats</b>.</p>` +
+    `<h2>Sign in with Google or Discord</h2><p>If you choose to sign in with Google or Discord, you sign in on that company's own page. We receive only your account's ID number and display name. Our server holds them for up to 10 minutes so the game can collect them, then discards them; after that only the leaderboard entries and cloud backup above are kept, linked to that ID. We never see your password, email address, contacts or anything else in your account.</p>` +
+    `<h2>Google Play Games</h2><p>On Android, BLINDS can use Google Play Games for sign-in and achievements. This is run by Google under Google's privacy policy; we only tell it which achievements you unlocked.</p>` +
+    `<h2>Reminders</h2><p>If you allow notifications, the game schedules one reminder on your phone when a new Daily BLINDS starts. This happens on your device; nothing is sent to us. You can switch it off in <b>Settings</b>.</p>` +
+    `<h2>Adverts (Google AdMob)</h2><p>BLINDS can show video adverts that you choose to watch in return for coins or diamonds; they never play unless you tap to watch one. They are provided by Google AdMob. To show and measure adverts, Google's software on your phone collects information such as your phone's advertising ID, approximate location from your IP address, and how you interact with the advert, under <a href="https://policies.google.com/technologies/partner-sites">Google's privacy policy</a>. In the UK and EU you are asked first whether adverts can be personalised; you can change this choice later. You can also reset or delete your advertising ID in your phone's settings. We do not receive this information from Google, only overall totals.</p>` +
+    `<h2>Purchases</h2><p>Diamond packs are bought through Google Play. Google handles the payment; we never see your card or payment details. The game is told only that a purchase was completed.</p>` +
+    `<h2>Children</h2><p>BLINDS does not knowingly collect personal information from children. The game has no free-text chat; online messages are chosen from a fixed list.</p>` +
+    `<h2>Your choices</h2><p>You can play without signing in and without playing online. To remove your data, delete your account in the game (Profile > DELETE ACCOUNT): this deletes the account and its cloud backup from our server. Then clear the game's data or uninstall it to remove the copy on your phone. To withdraw a Google or Discord sign-in, also remove BLINDS from your Google or Discord account's connected apps.</p>` +
+    `<h2>Changes</h2><p>If this policy changes, the new version will be posted on this page with a new date.</p>` +
+    `<h2>Contact</h2><p>Questions or requests: ${contactLine()}.</p>`);
+}
+
+function terms() {
+  const dev = esc(process.env.DEVELOPER_NAME || 'the BLINDS developer');
+  return shell('BLINDS - Terms', `<h1>Terms of service</h1><p class="small">BLINDS, by ${dev}. Last updated ${UPDATED}.</p>` +
+    `<h2>Playing the game</h2><p>BLINDS is provided for personal entertainment. Please play fairly: do not cheat, use modified versions of the game online, or try to disrupt the match server or other players.</p>` +
+    `<h2>Coins, diamonds and items</h2><p>Coins, diamonds and cosmetic items exist only inside the game, have no cash value and cannot be exchanged or refunded for money except where the law or Google Play's refund rules require it. They are stored on your device and, if you are signed in, backed up on our server. Without an account they are lost if the game's data is deleted.</p>` +
+    `<h2>Online play</h2><p>Online play depends on a server that may be unavailable at times. If an opponent leaves or the connection drops, a computer player may take over so the match can finish.</p>` +
+    `<h2>No warranty</h2><p>The game is provided "as is", without guarantees that it will always be available or free of errors, to the extent the law allows.</p>` +
+    `<h2>Contact</h2><p>${contactLine()}</p>`);
+}
+
+function deleteAccount() {
+  const dev = esc(process.env.DEVELOPER_NAME || 'the BLINDS developer');
+  return shell('BLINDS - Delete your account', `<h1>Delete your BLINDS account</h1><p class="small">BLINDS, by ${dev}.</p>` +
+    `<h2>How to delete your account</h2><p>You delete your account inside the game:</p>` +
+    `<ol><li>Open BLINDS and tap your profile picture (top left of the main menu).</li>` +
+    `<li>Under your name, tap <b>DELETE ACCOUNT</b>.</li><li>Tap <b>DELETE</b> to confirm.</li></ol>` +
+    `<h2>What is deleted</h2><p>The account's name, its Google or Discord ID (if you signed in that way) and its password record (if it was a username-and-password account), its cloud backup of your progress, and your entry on the TOP 100 trophy and win boards. This happens immediately and cannot be undone.</p>` +
+    `<h2>What we keep</h2><p>Nothing from the deleted account. Daily BLINDS results (name, character, score, streak) stay on that day's board until it is deleted automatically after 8 days. Your friend code's name, character, trophies and level stay on the server so your friends can see them; without an account, clearing the game's data or uninstalling makes a new code next time and the old one is no longer used. Anonymous usage counts contain nothing that identifies you.</p>` +
+    `<h2>Your game progress</h2><p>Deleting the account removes the online backup. The copy on your phone stays until you clear the game's data in your phone's settings or uninstall the game.</p>` +
+    `<h2>Google or Discord</h2><p>To also remove BLINDS from your Google or Discord account, open that account's "connected apps" (or "third-party access") settings and remove BLINDS.</p>` +
+    `<h2>Need help?</h2><p>If you cannot open the game, write to ${contactLine()} and we will tell you how to remove everything.</p>`);
+}
+
+// Returns true when it handled the request.
+function handle(req, res) {
+  const path = String(req.url || '').split('?')[0].replace(/\/+$/, '') || '/';
+  const pages = { '/about': about, '/privacy': privacy, '/terms': terms, '/delete-account': deleteAccount };
+  if (!pages[path]) return false;
+  res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=300' });
+  res.end(pages[path]());
+  return true;
+}
+
+module.exports = { handle };
